@@ -16,16 +16,18 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-netflix-black to-transparent">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-flixsy-darker to-transparent">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
-            <h1 className="text-2xl font-bold text-netflix-red">ZetaFlix</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-flixsy-primary to-flixsy-secondary bg-clip-text text-transparent">
+              Flixsy
+            </h1>
             <nav className="hidden md:flex space-x-6">
-              <a href="#" className="text-white hover:text-gray-300 transition-colors">Home</a>
-              <a href="#" className="text-white hover:text-gray-300 transition-colors">Movies</a>
-              <a href="#" className="text-white hover:text-gray-300 transition-colors">TV Shows</a>
-              <a href="#" className="text-white hover:text-gray-300 transition-colors">My List</a>
+              <a href="#" className="text-white hover:text-flixsy-primary transition-colors">Home</a>
+              <a href="#" className="text-white hover:text-flixsy-primary transition-colors">Movies</a>
+              <a href="#" className="text-white hover:text-flixsy-primary transition-colors">TV Shows</a>
+              <a href="#" className="text-white hover:text-flixsy-primary transition-colors">My List</a>
             </nav>
           </div>
           
@@ -36,11 +38,11 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
                 placeholder="Search movies..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-64 bg-netflix-gray border-gray-600 text-white placeholder-gray-400 pr-10"
+                className="w-64 bg-flixsy-gray border-flixsy-primary/30 text-white placeholder-gray-400 pr-10 focus:border-flixsy-primary"
               />
               <button
                 type="submit"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-flixsy-primary transition-colors"
               >
                 <Search size={18} />
               </button>

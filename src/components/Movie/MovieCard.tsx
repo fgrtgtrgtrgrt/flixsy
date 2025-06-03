@@ -14,7 +14,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick }) => {
       className="movie-card group"
       onClick={() => onClick(movie)}
     >
-      <div className="relative aspect-[2/3] bg-netflix-gray rounded-lg overflow-hidden">
+      <div className="relative aspect-[2/3] bg-flixsy-gray rounded-lg overflow-hidden">
         <img
           src={movieService.getImageUrl(movie.poster_path)}
           alt={movie.title}
@@ -28,7 +28,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick }) => {
             <div className="flex items-center space-x-2 text-xs text-gray-300">
               <span>{new Date(movie.release_date).getFullYear()}</span>
               <span>•</span>
-              <span className="flex items-center">
+              <span className="flex items-center text-flixsy-accent">
                 ⭐ {movie.vote_average.toFixed(1)}
               </span>
             </div>

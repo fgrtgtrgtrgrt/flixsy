@@ -63,11 +63,14 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				netflix: {
-					red: '#E50914',
-					black: '#141414',
-					dark: '#0F0F0F',
-					gray: '#181818'
+				flixsy: {
+					primary: '#8B5CF6',
+					secondary: '#3B82F6',
+					accent: '#06B6D4',
+					dark: '#0F0F23',
+					darker: '#0A0A1A',
+					gray: '#1A1A2E',
+					'gray-light': '#16213E'
 				}
 			},
 			borderRadius: {

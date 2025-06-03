@@ -6,6 +6,7 @@ import { movieService } from '@/services/movieService';
 import Header from '@/components/Layout/Header';
 import HeroSection from '@/components/Movie/HeroSection';
 import MovieRow from '@/components/Movie/MovieRow';
+import GenreRow from '@/components/Movie/GenreRow';
 import MovieModal from '@/components/Movie/MovieModal';
 import VideoPlayer from '@/components/Video/VideoPlayer';
 
@@ -30,11 +31,6 @@ const Index = () => {
   const { data: topRated = [] } = useQuery({
     queryKey: ['topRated'],
     queryFn: movieService.getTopRated,
-  });
-
-  const { data: upcoming = [] } = useQuery({
-    queryKey: ['upcoming'],
-    queryFn: movieService.getUpcoming,
   });
 
   const handleMovieClick = async (movie: Movie) => {
@@ -66,7 +62,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-netflix-black">
+    <div className="min-h-screen bg-flixsy-darker">
       <Header onSearch={handleSearch} />
       
       {!isSearching ? (
@@ -89,11 +85,7 @@ const Index = () => {
               movies={topRated} 
               onMovieClick={handleMovieClick}
             />
-            <MovieRow 
-              title="Coming Soon" 
-              movies={upcoming} 
-              onMovieClick={handleMovieClick}
-            />
+            <GenreRow onMovieClick={handleMovieClick} />
           </div>
         </>
       ) : (
@@ -107,7 +99,7 @@ const Index = () => {
                   className="movie-card cursor-pointer"
                   onClick={() => handleMovieClick(movie)}
                 >
-                  <div className="aspect-[2/3] bg-netflix-gray rounded-lg overflow-hidden">
+                  <div className="aspect-[2/3] bg-flixsy-gray rounded-lg overflow-hidden">
                     <img
                       src={movieService.getImageUrl(movie.poster_path)}
                       alt={movie.title}

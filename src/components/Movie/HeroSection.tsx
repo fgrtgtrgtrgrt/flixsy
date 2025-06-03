@@ -31,8 +31,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onMovieClick }) => {
           backgroundImage: `url(${movieService.getBackdropUrl(featuredMovie.backdrop_path)})`,
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-netflix-black via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-flixsy-darker/90 via-flixsy-darker/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-flixsy-darker via-transparent to-transparent" />
       </div>
       
       <div className="relative z-10 container mx-auto px-4">
@@ -46,13 +46,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onMovieClick }) => {
           <div className="flex space-x-4 animate-fade-in">
             <Button 
               onClick={() => onMovieClick(featuredMovie)}
-              className="bg-white text-black hover:bg-gray-200 px-8 py-3 text-lg font-semibold"
+              className="bg-flixsy-primary hover:bg-flixsy-primary/80 text-white px-8 py-3 text-lg font-semibold"
             >
               ▶ Play
             </Button>
             <Button 
               variant="outline"
-              className="border-gray-400 text-white hover:bg-white/10 px-8 py-3 text-lg"
+              className="border-flixsy-primary/50 text-white hover:bg-flixsy-primary/20 hover:border-flixsy-primary px-8 py-3 text-lg"
             >
               More Info
             </Button>

@@ -22,6 +22,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ movieId, isOpen, onClose }) =
             allowFullScreen
             allow="autoplay; encrypted-media; picture-in-picture"
             title="Movie Player"
+            sandbox="allow-same-origin allow-scripts allow-presentation allow-forms"
+            referrerPolicy="no-referrer"
           />
         </div>
       </DialogContent>

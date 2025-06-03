@@ -104,6 +104,6 @@ export const movieService = {
   },
 
   getVidsrcUrl(movieId: number): string {
-    return `https://vidsrc.me/embed/movie?tmdb=${movieId}`;
+    return `https://vidsrc.to/embed/movie/${movieId}`;
   }
 };

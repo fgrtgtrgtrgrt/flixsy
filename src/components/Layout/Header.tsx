@@ -5,14 +5,28 @@ import { Input } from '@/components/ui/input';
 
 interface HeaderProps {
   onSearch: (query: string) => void;
+  onNavigate?: (section: string) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onSearch }) => {
+const Header: React.FC<HeaderProps> = ({ onSearch, onNavigate }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeSection, setActiveSection] = useState('home');
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch(searchQuery);
+  };
+
+  const handleNavClick = (section: string) => {
+    setActiveSection(section);
+    if (onNavigate) {
+      onNavigate(section);
+    }
+    // Clear search when navigating
+    if (section === 'home') {
+      setSearchQuery('');
+      onSearch('');
+    }
   };
 
   return (
@@ -20,14 +34,37 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-flixsy-primary to-flixsy-secondary bg-clip-text text-transparent">
+            <h1 
+              className="text-2xl font-bold bg-gradient-to-r from-flixsy-primary to-flixsy-secondary bg-clip-text text-transparent cursor-pointer"
+              onClick={() => handleNavClick('home')}
+            >
               Flixsy
             </h1>
             <nav className="hidden md:flex space-x-6">
-              <a href="#" className="text-white hover:text-flixsy-primary transition-colors">Home</a>
-              <a href="#" className="text-white hover:text-flixsy-primary transition-colors">Movies</a>
-              <a href="#" className="text-white hover:text-flixsy-primary transition-colors">TV Shows</a>
-              <a href="#" className="text-white hover:text-flixsy-primary transition-colors">My List</a>
+              <button 
+                onClick={() => handleNavClick('home')}
+                className={`transition-colors ${activeSection === 'home' ? 'text-flixsy-primary' : 'text-white hover:text-flixsy-primary'}`}
+              >
+                Home
+              </button>
+              <button 
+                onClick={() => handleNavClick('movies')}
+                className={`transition-colors ${activeSection === 'movies' ? 'text-flixsy-primary' : 'text-white hover:text-flixsy-primary'}`}
+              >
+                Movies
+              </button>
+              <button 
+                onClick={() => handleNavClick('tvshows')}
+                className={`transition-colors ${activeSection === 'tvshows' ? 'text-flixsy-primary' : 'text-white hover:text-flixsy-primary'}`}
+              >
+                TV Shows
+              </button>
+              <button 
+                onClick={() => handleNavClick('mylist')}
+                className={`transition-colors ${activeSection === 'mylist' ? 'text-flixsy-primary' : 'text-white hover:text-flixsy-primary'}`}
+              >
+                My List
+              </button>
             </nav>
           </div>
           

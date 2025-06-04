@@ -17,6 +17,7 @@ const Index = () => {
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<Movie[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [currentSection, setCurrentSection] = useState('home');
 
   const { data: trending = [] } = useQuery({
     queryKey: ['trending'],
@@ -52,43 +53,30 @@ const Index = () => {
   const handleSearch = async (query: string) => {
     if (query.trim()) {
       setIsSearching(true);
+      setCurrentSection('search');
       const results = await movieService.searchMovies(query);
       setSearchResults(results);
       console.log('Search results:', results.length);
     } else {
       setIsSearching(false);
       setSearchResults([]);
+      if (currentSection === 'search') {
+        setCurrentSection('home');
+      }
     }
   };
 
-  return (
-    <div className="min-h-screen bg-flixsy-darker">
-      <Header onSearch={handleSearch} />
-      
-      {!isSearching ? (
-        <>
-          <HeroSection onMovieClick={handleMovieClick} />
-          
-          <div className="space-y-8 pb-16">
-            <MovieRow 
-              title="Trending Now" 
-              movies={trending} 
-              onMovieClick={handleMovieClick}
-            />
-            <MovieRow 
-              title="Popular Movies" 
-              movies={popular} 
-              onMovieClick={handleMovieClick}
-            />
-            <MovieRow 
-              title="Top Rated" 
-              movies={topRated} 
-              onMovieClick={handleMovieClick}
-            />
-            <GenreRow onMovieClick={handleMovieClick} />
-          </div>
-        </>
-      ) : (
+  const handleNavigate = (section: string) => {
+    setCurrentSection(section);
+    if (section === 'home') {
+      setIsSearching(false);
+      setSearchResults([]);
+    }
+  };
+
+  const renderContent = () => {
+    if (isSearching || currentSection === 'search') {
+      return (
         <div className="pt-24 px-4">
           <div className="container mx-auto">
             <h2 className="text-2xl font-semibold text-white mb-6">Search Results</h2>
@@ -113,7 +101,80 @@ const Index = () => {
             </div>
           </div>
         </div>
-      )}
+      );
+    }
+
+    switch (currentSection) {
+      case 'movies':
+        return (
+          <div className="pt-24">
+            <div className="space-y-8 pb-16">
+              <MovieRow 
+                title="Popular Movies" 
+                movies={popular} 
+                onMovieClick={handleMovieClick}
+              />
+              <MovieRow 
+                title="Top Rated Movies" 
+                movies={topRated} 
+                onMovieClick={handleMovieClick}
+              />
+              <GenreRow onMovieClick={handleMovieClick} />
+            </div>
+          </div>
+        );
+      
+      case 'tvshows':
+        return (
+          <div className="pt-24 px-4">
+            <div className="container mx-auto">
+              <h2 className="text-2xl font-semibold text-white mb-6">TV Shows</h2>
+              <p className="text-gray-400">TV Shows section coming soon!</p>
+            </div>
+          </div>
+        );
+      
+      case 'mylist':
+        return (
+          <div className="pt-24 px-4">
+            <div className="container mx-auto">
+              <h2 className="text-2xl font-semibold text-white mb-6">My List</h2>
+              <p className="text-gray-400">Your saved movies and shows will appear here!</p>
+            </div>
+          </div>
+        );
+      
+      default: // 'home'
+        return (
+          <>
+            <HeroSection onMovieClick={handleMovieClick} />
+            <div className="space-y-8 pb-16">
+              <MovieRow 
+                title="Trending Now" 
+                movies={trending} 
+                onMovieClick={handleMovieClick}
+              />
+              <MovieRow 
+                title="Popular Movies" 
+                movies={popular} 
+                onMovieClick={handleMovieClick}
+              />
+              <MovieRow 
+                title="Top Rated" 
+                movies={topRated} 
+                onMovieClick={handleMovieClick}
+              />
+              <GenreRow onMovieClick={handleMovieClick} />
+            </div>
+          </>
+        );
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-flixsy-darker">
+      <Header onSearch={handleSearch} onNavigate={handleNavigate} />
+      {renderContent()}
 
       <MovieModal
         movie={selectedMovie}

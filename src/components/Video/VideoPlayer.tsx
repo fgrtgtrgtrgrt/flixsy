@@ -36,7 +36,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ movieId, isOpen, onClose }) =
             allowFullScreen
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
             title="Movie Player"
-            sandbox="allow-same-origin allow-scripts allow-presentation allow-forms allow-popups"
+            sandbox="allow-same-origin allow-scripts allow-presentation allow-forms allow-popups allow-popups-to-escape-sandbox"
             referrerPolicy="no-referrer"
           />
           <div className="absolute top-4 right-4 z-10">

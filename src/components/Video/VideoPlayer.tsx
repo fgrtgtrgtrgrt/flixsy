@@ -3,15 +3,16 @@ import React from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface VideoPlayerProps {
-  movieId: number | null;
+  contentId: number | null;
+  contentType: 'movie' | 'tv' | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const VideoPlayer: React.FC<VideoPlayerProps> = ({ movieId, isOpen, onClose }) => {
-  if (!movieId) return null;
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ contentId, contentType, isOpen, onClose }) => {
+  if (!contentId || !contentType) return null;
 
-  const vidsrcUrl = `https://vidsrc.cc/v2/embed/movie/${movieId}`;
+  const vidsrcUrl = `https://vidsrc.cc/v2/embed/${contentType}/${contentId}`;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -22,8 +23,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ movieId, isOpen, onClose }) =
             className="w-full h-full rounded-lg"
             allowFullScreen
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-            title="Movie Player"
-            sandbox="allow-same-origin allow-scripts allow-presentation allow-forms"
+            title={`${contentType === 'movie' ? 'Movie' : 'TV Show'} Player`}
+            sandbox="allow-same-origin allow-scripts allow-presentation"
             referrerPolicy="no-referrer"
           />
         </div>

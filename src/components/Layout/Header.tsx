@@ -72,7 +72,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, onNavigate }) => {
             <div className="relative">
               <Input
                 type="text"
-                placeholder="Search movies..."
+                placeholder="Search movies & TV shows..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-64 bg-flixsy-gray border-flixsy-primary/30 text-white placeholder-gray-400 pr-10 focus:border-flixsy-primary"

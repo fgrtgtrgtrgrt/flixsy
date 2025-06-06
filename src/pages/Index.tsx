@@ -254,7 +254,7 @@ const Index = () => {
       />
 
       <TVShowModal
-        movie={selectedTVShow}
+        tvShow={selectedTVShow}
         isOpen={isTVShowModalOpen}
         onClose={() => setIsTVShowModalOpen(false)}
         onPlay={handlePlayTVShow}

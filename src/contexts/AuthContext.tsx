@@ -48,20 +48,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signUp = async (email: string, password: string, fullName?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName
+  const redirectUrl = `${window.location.origin}/`;
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: redirectUrl,
+      data: {
+        full_name: fullName
+      }
+    }
+  });
+
+  // ✅ Call your Edge Function *after* successful sign up
+  if (data?.user) {
+    await supabase.functions.invoke("user-created", {
+      body: {
+        type: "USER_CREATED",
+        user: {
+          id: data.user.id
         }
       }
     });
-    return { error };
-  };
+  }
+
+  return { error };
+};
+
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({

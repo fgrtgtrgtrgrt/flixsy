@@ -42,7 +42,7 @@ serve(async (req) => {
       .eq("user_id", user.id)
       .single();
 
-    if (subError) {
+    if (subError && subError.code !== 'PGRST116') {
       console.error("Error fetching subscription:", subError);
       throw subError;
     }
@@ -69,12 +69,14 @@ serve(async (req) => {
       .eq("user_id", user.id)
       .single();
 
-    if (creditsError) {
+    if (creditsError && creditsError.code !== 'PGRST116') {
+      // Real error
       console.error("Error fetching credits:", creditsError);
       throw creditsError;
     }
 
-    if (!credits) {
+    if (creditsError && creditsError.code === 'PGRST116') {
+      // No credits row found, insert a new one
       console.log("No credits found for user, creating new record");
       const today = new Date().toISOString().split("T")[0];
 

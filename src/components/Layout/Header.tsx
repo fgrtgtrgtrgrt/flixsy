@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import UserMenu from './UserMenu';
 
 interface HeaderProps {
   onSearch: (query: string) => void;
@@ -68,23 +69,27 @@ const Header: React.FC<HeaderProps> = ({ onSearch, onNavigate }) => {
             </nav>
           </div>
           
-          <form onSubmit={handleSearch} className="flex items-center">
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Search movies & TV shows..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-64 bg-flixsy-gray border-flixsy-primary/30 text-white placeholder-gray-400 pr-10 focus:border-flixsy-primary"
-              />
-              <button
-                type="submit"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-flixsy-primary transition-colors"
-              >
-                <Search size={18} />
-              </button>
-            </div>
-          </form>
+          <div className="flex items-center gap-4">
+            <form onSubmit={handleSearch} className="flex items-center">
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="Search movies & TV shows..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-64 bg-flixsy-gray border-flixsy-primary/30 text-white placeholder-gray-400 pr-10 focus:border-flixsy-primary"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-flixsy-primary transition-colors"
+                >
+                  <Search size={18} />
+                </button>
+              </div>
+            </form>
+            
+            <UserMenu />
+          </div>
         </div>
       </div>
     </header>

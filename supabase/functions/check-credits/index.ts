@@ -50,11 +50,33 @@ serve(async (req) => {
       .single();
 
     if (!credits) {
-      return new Response(JSON.stringify({ error: "Credits not found" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 404,
-      });
-    }
+  const today = new Date().toISOString().split('T')[0];
+  const { data: newCredits, error: insertError } = await supabaseClient
+    .from("credits")
+    .insert({
+      user_id: user.id,
+      credits_remaining: 5,
+      last_reset_date: today,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    })
+    .select()
+    .single();
+
+  if (insertError) {
+    throw new Error("Failed to create credits row: " + insertError.message);
+  }
+
+  return new Response(JSON.stringify({
+    isPremium: false,
+    credits: newCredits.credits_remaining,
+    canWatch: newCredits.credits_remaining > 0
+  }), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    status: 200,
+  });
+}
+
 
     const today = new Date().toISOString().split('T')[0];
     const lastReset = credits.last_reset_date;

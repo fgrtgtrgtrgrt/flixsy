@@ -49,13 +49,14 @@ serve(async (req) => {
       .eq("user_id", user.id)
       .single();
 
-    if (!credits) {
+if (!credits) {
   const today = new Date().toISOString().split('T')[0];
+
   const { data: newCredits, error: insertError } = await supabaseClient
     .from("credits")
     .insert({
       user_id: user.id,
-      credits_remaining: 5,
+      credits_remaining: 5, // Start with 5 credits
       last_reset_date: today,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -76,6 +77,7 @@ serve(async (req) => {
     status: 200,
   });
 }
+
 
 
     const today = new Date().toISOString().split('T')[0];

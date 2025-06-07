@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import UserMenu from './UserMenu';
+import CreditDisplay from '@/components/Credits/CreditDisplay';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface HeaderProps {
   onSearch: (query: string) => void;
@@ -12,6 +14,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onSearch, onNavigate }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState('home');
+  const { user } = useAuth();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,6 +91,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, onNavigate }) => {
               </div>
             </form>
             
+            {user && <CreditDisplay />}
             <UserMenu />
           </div>
         </div>

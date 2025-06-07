@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Movie, MovieDetails } from '@/types/movie';
@@ -13,6 +12,7 @@ import GenreRow from '@/components/Movie/GenreRow';
 import MovieModal from '@/components/Movie/MovieModal';
 import TVShowModal from '@/components/TV/TVShowModal';
 import VideoPlayer from '@/components/Video/VideoPlayer';
+import CreditGuard from '@/components/Credits/CreditGuard';
 
 const Index = () => {
   const [selectedMovie, setSelectedMovie] = useState<MovieDetails | null>(null);
@@ -25,6 +25,8 @@ const Index = () => {
   const [searchResults, setSearchResults] = useState<(Movie | TVShow)[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [currentSection, setCurrentSection] = useState('home');
+  const [isCreditGuardOpen, setIsCreditGuardOpen] = useState(false);
+  const [pendingPlayContent, setPendingPlayContent] = useState<{id: number, type: 'movie' | 'tv', title: string} | null>(null);
 
   // Movie queries
   const { data: trendingMovies = [] } = useQuery({
@@ -78,18 +80,28 @@ const Index = () => {
 
   const handlePlayMovie = (movieId: number) => {
     console.log('Playing movie ID:', movieId);
-    setPlayingId(movieId);
-    setPlayingType('movie');
-    setIsPlayerOpen(true);
+    const movieTitle = selectedMovie?.title || 'Movie';
+    setPendingPlayContent({ id: movieId, type: 'movie', title: movieTitle });
+    setIsCreditGuardOpen(true);
     setIsMovieModalOpen(false);
   };
 
   const handlePlayTVShow = (tvShowId: number) => {
     console.log('Playing TV show ID:', tvShowId);
-    setPlayingId(tvShowId);
-    setPlayingType('tv');
-    setIsPlayerOpen(true);
+    const tvShowTitle = selectedTVShow?.name || 'TV Show';
+    setPendingPlayContent({ id: tvShowId, type: 'tv', title: tvShowTitle });
+    setIsCreditGuardOpen(true);
     setIsTVShowModalOpen(false);
+  };
+
+  const proceedToPlay = () => {
+    if (pendingPlayContent) {
+      setPlayingId(pendingPlayContent.id);
+      setPlayingType(pendingPlayContent.type);
+      setIsPlayerOpen(true);
+      setIsCreditGuardOpen(false);
+      setPendingPlayContent(null);
+    }
   };
 
   const handleSearch = async (query: string) => {
@@ -258,6 +270,16 @@ const Index = () => {
         isOpen={isTVShowModalOpen}
         onClose={() => setIsTVShowModalOpen(false)}
         onPlay={handlePlayTVShow}
+      />
+
+      <CreditGuard
+        isOpen={isCreditGuardOpen}
+        onClose={() => {
+          setIsCreditGuardOpen(false);
+          setPendingPlayContent(null);
+        }}
+        onProceed={proceedToPlay}
+        contentTitle={pendingPlayContent?.title || ''}
       />
 
       <VideoPlayer

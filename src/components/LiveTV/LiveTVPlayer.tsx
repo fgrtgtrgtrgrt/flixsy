@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { LiveTVChannel } from '@/types/liveTV';
@@ -53,6 +52,9 @@ const LiveTVPlayer: React.FC<LiveTVPlayerProps> = ({ channel, isOpen, onClose })
           <div className={`absolute ${isMobile ? 'top-2 left-2' : 'top-4 left-4'} bg-black/70 rounded px-2 md:px-3 py-1 md:py-2`}>
             <h3 className={`text-white font-semibold ${isMobile ? 'text-sm' : 'text-base'}`}>{channel.name}</h3>
             <p className={`text-gray-300 ${isMobile ? 'text-xs' : 'text-sm'}`}>{channel.category} • {channel.country}</p>
+            {channel.currentProgram && (
+              <p className={`text-gray-300 ${isMobile ? 'text-xs' : 'text-sm'}`}>Now: {channel.currentProgram}</p>
+            )}
           </div>
 
           {/* Control buttons */}

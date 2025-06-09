@@ -1,70 +1,49 @@
-import { LiveTVChannel, LiveTVCategory } from '@/types/liveTV';
+import axios from 'axios';
 
-const MOCK_CHANNELS: LiveTVChannel[] = [
-  {
-    id: '1',
-    name: 'NASA TV',
-    logo: '/placeholder.svg',
-    category: 'Educational',
-    country: 'US',
-    url: 'https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8',
-    isWorking: true,
-    currentProgram: 'Spacewalk Live',
-    programStart: '2025-06-08T19:00:00Z',
-    programEnd: '2025-06-08T20:00:00Z',
-  },
-  {
-    id: '2',
-    name: 'Weather Network',
-    logo: '/placeholder.svg',
-    category: 'Weather',
-    country: 'CA',
-    url: 'https://weather-lh.akamaihd.net/i/twc_1@92006/master.m3u8',
-    isWorking: true,
-    currentProgram: 'Storm Watch',
-    programStart: '2025-06-08T19:30:00Z',
-    programEnd: '2025-06-08T20:30:00Z',
-  },
-  {
-    id: '3',
-    name: 'Al Jazeera English',
-    logo: '/placeholder.svg',
-    category: 'News',
-    country: 'QA',
-    url: 'https://live-hls-web-aje.getaj.net/AJE/01.m3u8',
-    isWorking: true,
-    currentProgram: 'Global News Hour',
-    programStart: '2025-06-08T19:15:00Z',
-    programEnd: '2025-06-08T20:15:00Z',
-  },
-];
+export interface LiveTVChannel {
+  id: string;
+  name: string;
+  logo: string;
+  url: string; // stream URL
+  category: string;
+  country: string;
+  currentShow?: string;
+  isWorking?: boolean;
+}
 
-export const getAllChannels = async (): Promise<LiveTVChannel[]> => {
-  return MOCK_CHANNELS;
-};
+const CHANNELS_URL = 'https://iptv-org.github.io/api/channels.json';
+const EPG_URL = 'https://iptv-org.github.io/api/epg.json';
 
-export const getChannelsByCategory = async (): Promise<LiveTVCategory[]> => {
-  const channels = await getAllChannels();
+// Fetch channels and enrich with current show info
+export async function fetchChannelsWithCurrentShow() {
+  try {
+    const [channelsRes, epgRes] = await Promise.all([
+      axios.get<LiveTVChannel[]>(CHANNELS_URL),
+      axios.get<Record<string, { title?: string }[]>>(EPG_URL)
+    ]);
 
-  const categorized: Record<string, LiveTVChannel[]> = channels.reduce((acc, channel) => {
-    const category = channel.category || 'General';
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(channel);
-    return acc;
-  }, {} as Record<string, LiveTVChannel[]>);
+    const channels = channelsRes.data;
+    const epg = epgRes.data;
 
-  return Object.entries(categorized).map(([name, channels]) => ({
-    name,
-    channels,
-  }));
-};
+    // Map EPG by channel id for quick lookup
+    const epgByChannel: Record<string, string> = {};
 
-export const getStreamUrl = (channel: LiveTVChannel): string => {
-  return channel.url;
-};
+    Object.entries(epg).forEach(([channelId, programs]) => {
+      if (programs && programs.length > 0) {
+        epgByChannel[channelId] = programs[0].title || '';
+      }
+    });
 
-export const liveTVService = {
-  getAllChannels,
-  getChannelsByCategory,
-  getStreamUrl,
-};
+    // Add currentShow and isWorking flag based on if stream url exists
+    const enrichedChannels = channels.map(ch => ({
+      ...ch,
+      currentShow: epgByChannel[ch.id] || 'Unknown show',
+      isWorking: !!ch.url,
+    }));
+
+    return enrichedChannels;
+  } catch (err) {
+    console.error('Failed to fetch channels or EPG', err);
+    return [];
+  }
+}

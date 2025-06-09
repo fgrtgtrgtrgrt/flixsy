@@ -1,18 +1,16 @@
-
 import { LiveTVChannel, LiveTVCategory } from '@/types/liveTV';
 
-// Free IPTV API endpoints for live TV channels
 const IPTV_API_BASE = 'https://iptv-org.github.io/api';
 
 const getAllChannels = async (): Promise<LiveTVChannel[]> => {
   try {
     console.log('Fetching channels from API...');
     const response = await fetch(`${IPTV_API_BASE}/channels.json`);
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const data = await response.json();
     console.log('Raw API response:', {
       dataType: typeof data,
@@ -20,24 +18,23 @@ const getAllChannels = async (): Promise<LiveTVChannel[]> => {
       length: data?.length || 'unknown',
       firstItem: data?.[0] || 'no first item'
     });
-    
+
     if (!Array.isArray(data)) {
       console.error('API response is not an array:', data);
       return getFallbackChannels();
     }
-    
-    // Filter for working channels and format the data
+
     const channels: LiveTVChannel[] = data
-      .filter((channel: any) => {
-        return channel && 
-               typeof channel === 'object' && 
-               channel.name && 
-               channel.url &&
-               channel.url.trim() !== '';
-      })
-      .slice(0, 100) // Limit to first 100 channels for performance
+      .filter((channel: any) =>
+        channel &&
+        typeof channel === 'object' &&
+        typeof channel.name === 'string' &&
+        typeof channel.url === 'string' &&
+        channel.url.trim() !== ''
+      )
+      .slice(0, 100)
       .map((channel: any, index: number) => {
-        const formattedChannel = {
+        const formattedChannel: LiveTVChannel = {
           id: channel.id || `channel-${index}`,
           name: channel.name || 'Unknown Channel',
           logo: channel.logo || '/placeholder.svg',
@@ -47,17 +44,17 @@ const getAllChannels = async (): Promise<LiveTVChannel[]> => {
           url: channel.url,
           isWorking: true
         };
-        
+
         if (index < 3) {
           console.log(`Sample channel ${index}:`, formattedChannel);
         }
-        
+
         return formattedChannel;
       });
 
     console.log(`Successfully processed ${channels.length} channels`);
     return channels;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching live TV channels:', error);
     console.log('Falling back to hardcoded channels');
     return getFallbackChannels();
@@ -68,32 +65,27 @@ const getChannelsByCategory = async (): Promise<LiveTVCategory[]> => {
   try {
     console.log('Getting channels by category...');
     const channels = await getAllChannels();
-    
+
     if (!channels || channels.length === 0) {
       console.log('No channels received, returning empty array');
       return [];
     }
-    
-    console.log(`Categorizing ${channels.length} channels...`);
-    
+
     const categorized: Record<string, LiveTVChannel[]> = channels.reduce((acc, channel) => {
       const category = channel.category || 'General';
-      if (!acc[category]) {
-        acc[category] = [];
-      }
+      if (!acc[category]) acc[category] = [];
       acc[category].push(channel);
       return acc;
     }, {} as Record<string, LiveTVChannel[]>);
 
-    const categories = Object.entries(categorized).map(([name, categoryChannels]) => ({
+    const categories: LiveTVCategory[] = Object.entries(categorized).map(([name, channels]) => ({
       name,
-      channels: categoryChannels
+      channels
     }));
-    
+
     console.log('Categories created:', categories.map(cat => `${cat.name}: ${cat.channels.length} channels`));
-    
     return categories;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error categorizing channels:', error);
     return [];
   }

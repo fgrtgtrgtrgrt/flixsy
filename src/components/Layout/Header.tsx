@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -15,6 +14,14 @@ const Header: React.FC<HeaderProps> = ({ onSearch, onNavigate }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState('home');
   const { user } = useAuth();
+
+  const navItems = [
+    { id: 'home', label: 'Home' },
+    { id: 'movies', label: 'Movies' },
+    { id: 'tvshows', label: 'TV Shows' },
+    { id: 'livetv', label: 'Live TV' },
+    { id: 'mylist', label: 'My List' },
+  ];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,30 +52,15 @@ const Header: React.FC<HeaderProps> = ({ onSearch, onNavigate }) => {
               Flixsy
             </h1>
             <nav className="hidden md:flex space-x-6">
-              <button 
-                onClick={() => handleNavClick('home')}
-                className={`transition-colors ${activeSection === 'home' ? 'text-flixsy-primary' : 'text-white hover:text-flixsy-primary'}`}
-              >
-                Home
-              </button>
-              <button 
-                onClick={() => handleNavClick('movies')}
-                className={`transition-colors ${activeSection === 'movies' ? 'text-flixsy-primary' : 'text-white hover:text-flixsy-primary'}`}
-              >
-                Movies
-              </button>
-              <button 
-                onClick={() => handleNavClick('tvshows')}
-                className={`transition-colors ${activeSection === 'tvshows' ? 'text-flixsy-primary' : 'text-white hover:text-flixsy-primary'}`}
-              >
-                TV Shows
-              </button>
-              <button 
-                onClick={() => handleNavClick('mylist')}
-                className={`transition-colors ${activeSection === 'mylist' ? 'text-flixsy-primary' : 'text-white hover:text-flixsy-primary'}`}
-              >
-                My List
-              </button>
+              {navItems.map((item) => (
+                <button 
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={`transition-colors ${activeSection === item.id ? 'text-flixsy-primary' : 'text-white hover:text-flixsy-primary'}`}
+                >
+                  {item.label}
+                </button>
+              ))}
             </nav>
           </div>
           

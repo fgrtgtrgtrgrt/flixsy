@@ -1,9 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Movie, MovieDetails } from '@/types/movie';
 import { TVShow, TVShowDetails } from '@/types/tv';
+import { LiveTVChannel, LiveTVCategory } from '@/types/liveTV';
 import { movieService } from '@/services/movieService';
 import { tvService } from '@/services/tvService';
+import { liveTVService } from '@/services/liveTVService';
 import Header from '@/components/Layout/Header';
 import HeroSection from '@/components/Movie/HeroSection';
 import MovieRow from '@/components/Movie/MovieRow';
@@ -12,13 +15,17 @@ import GenreRow from '@/components/Movie/GenreRow';
 import MovieModal from '@/components/Movie/MovieModal';
 import TVShowModal from '@/components/TV/TVShowModal';
 import VideoPlayer from '@/components/Video/VideoPlayer';
+import LiveTVCategoryRow from '@/components/LiveTV/LiveTVCategoryRow';
+import LiveTVPlayer from '@/components/LiveTV/LiveTVPlayer';
 import CreditGuard from '@/components/Credits/CreditGuard';
 
 const Index = () => {
   const [selectedMovie, setSelectedMovie] = useState<MovieDetails | null>(null);
   const [selectedTVShow, setSelectedTVShow] = useState<TVShowDetails | null>(null);
+  const [selectedLiveTVChannel, setSelectedLiveTVChannel] = useState<LiveTVChannel | null>(null);
   const [isMovieModalOpen, setIsMovieModalOpen] = useState(false);
   const [isTVShowModalOpen, setIsTVShowModalOpen] = useState(false);
+  const [isLiveTVPlayerOpen, setIsLiveTVPlayerOpen] = useState(false);
   const [playingId, setPlayingId] = useState<number | null>(null);
   const [playingType, setPlayingType] = useState<'movie' | 'tv' | null>(null);
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
@@ -60,6 +67,13 @@ const Index = () => {
     queryFn: tvService.getTopRated,
   });
 
+  // Live TV query
+  const { data: liveTVCategories = [] } = useQuery({
+    queryKey: ['live-tv-categories'],
+    queryFn: liveTVService.getChannelsByCategory,
+    refetchInterval: 5 * 60 * 1000, // Auto-refresh every 5 minutes
+  });
+
   const handleMovieClick = async (movie: Movie) => {
     console.log('Movie clicked:', movie.title);
     const details = await movieService.getMovieDetails(movie.id);
@@ -76,6 +90,12 @@ const Index = () => {
       setSelectedTVShow(details);
       setIsTVShowModalOpen(true);
     }
+  };
+
+  const handleLiveTVChannelClick = (channel: LiveTVChannel) => {
+    console.log('Live TV channel clicked:', channel.name);
+    setSelectedLiveTVChannel(channel);
+    setIsLiveTVPlayerOpen(true);
   };
 
   const handlePlayMovie = (movieId: number) => {
@@ -210,6 +230,25 @@ const Index = () => {
             </div>
           </div>
         );
+
+      case 'livetv':
+        return (
+          <div className="pt-24">
+            <div className="space-y-8 pb-16">
+              <div className="px-4 mb-8">
+                <h1 className="text-3xl font-bold text-white mb-2">Live TV</h1>
+                <p className="text-gray-400">Watch live channels from around the world</p>
+              </div>
+              {liveTVCategories.map((category) => (
+                <LiveTVCategoryRow
+                  key={category.name}
+                  category={category}
+                  onChannelClick={handleLiveTVChannelClick}
+                />
+              ))}
+            </div>
+          </div>
+        );
       
       case 'mylist':
         return (
@@ -270,6 +309,15 @@ const Index = () => {
         isOpen={isTVShowModalOpen}
         onClose={() => setIsTVShowModalOpen(false)}
         onPlay={handlePlayTVShow}
+      />
+
+      <LiveTVPlayer
+        channel={selectedLiveTVChannel}
+        isOpen={isLiveTVPlayerOpen}
+        onClose={() => {
+          setIsLiveTVPlayerOpen(false);
+          setSelectedLiveTVChannel(null);
+        }}
       />
 
       <CreditGuard

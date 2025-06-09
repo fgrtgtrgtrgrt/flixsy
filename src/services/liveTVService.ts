@@ -28,13 +28,13 @@ export const liveTVService = {
       return channels;
     } catch (error) {
       console.error('Error fetching live TV channels:', error);
-      return this.getFallbackChannels();
+      return liveTVService.getFallbackChannels();
     }
   },
 
   async getChannelsByCategory(): Promise<LiveTVCategory[]> {
     try {
-      const channels = await this.getAllChannels();
+      const channels = await liveTVService.getAllChannels();
       const categorized = channels.reduce((acc: { [key: string]: LiveTVChannel[] }, channel) => {
         const category = channel.category || 'General';
         if (!acc[category]) {

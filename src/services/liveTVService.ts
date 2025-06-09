@@ -34,14 +34,14 @@ const getAllChannels = async (): Promise<LiveTVChannel[]> => {
 const getChannelsByCategory = async (): Promise<LiveTVCategory[]> => {
   try {
     const channels = await getAllChannels();
-    const categorized = channels.reduce((acc: { [key: string]: LiveTVChannel[] }, channel) => {
+    const categorized: Record<string, LiveTVChannel[]> = channels.reduce((acc, channel) => {
       const category = channel.category || 'General';
       if (!acc[category]) {
         acc[category] = [];
       }
       acc[category].push(channel);
       return acc;
-    }, {});
+    }, {} as Record<string, LiveTVChannel[]>);
 
     return Object.entries(categorized).map(([name, channels]) => ({
       name,

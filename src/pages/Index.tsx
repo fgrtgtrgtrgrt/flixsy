@@ -161,8 +161,8 @@ const Index = () => {
       return (
         <div className="pt-24 px-4">
           <div className="container mx-auto">
-            <h2 className="text-2xl font-semibold text-white mb-6">Search Results</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <h2 className="text-xl md:text-2xl font-semibold text-white mb-6">Search Results</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
               {searchResults.map((item) => (
                 <div 
                   key={item.id}
@@ -177,7 +177,7 @@ const Index = () => {
                       loading="lazy"
                     />
                   </div>
-                  <h3 className="text-white text-sm mt-2 line-clamp-2">
+                  <h3 className="text-white text-xs md:text-sm mt-2 line-clamp-2">
                     {isMovie(item) ? item.title : item.name}
                   </h3>
                 </div>
@@ -192,7 +192,7 @@ const Index = () => {
       case 'movies':
         return (
           <div className="pt-24">
-            <div className="space-y-8 pb-16">
+            <div className="space-y-6 md:space-y-8 pb-16">
               <MovieRow 
                 title="Popular Movies" 
                 movies={popularMovies} 
@@ -211,7 +211,7 @@ const Index = () => {
       case 'tvshows':
         return (
           <div className="pt-24">
-            <div className="space-y-8 pb-16">
+            <div className="space-y-6 md:space-y-8 pb-16">
               <TVShowRow 
                 title="Popular TV Shows" 
                 tvShows={popularTVShows} 
@@ -234,10 +234,10 @@ const Index = () => {
       case 'livetv':
         return (
           <div className="pt-24">
-            <div className="space-y-8 pb-16">
-              <div className="px-4 mb-8">
-                <h1 className="text-3xl font-bold text-white mb-2">Live TV</h1>
-                <p className="text-gray-400">Watch live channels from around the world</p>
+            <div className="space-y-6 md:space-y-8 pb-16">
+              <div className="px-4 mb-6 md:mb-8">
+                <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Live TV</h1>
+                <p className="text-sm md:text-base text-gray-400">Watch live channels from around the world</p>
               </div>
               {liveTVCategories.map((category) => (
                 <LiveTVCategoryRow
@@ -254,8 +254,8 @@ const Index = () => {
         return (
           <div className="pt-24 px-4">
             <div className="container mx-auto">
-              <h2 className="text-2xl font-semibold text-white mb-6">My List</h2>
-              <p className="text-gray-400">Your saved movies and shows will appear here!</p>
+              <h2 className="text-xl md:text-2xl font-semibold text-white mb-6">My List</h2>
+              <p className="text-sm md:text-base text-gray-400">Your saved movies and shows will appear here!</p>
             </div>
           </div>
         );
@@ -264,7 +264,7 @@ const Index = () => {
         return (
           <>
             <HeroSection onMovieClick={handleMovieClick} />
-            <div className="space-y-8 pb-16">
+            <div className="space-y-6 md:space-y-8 pb-16">
               <MovieRow 
                 title="Trending Movies" 
                 movies={trendingMovies} 

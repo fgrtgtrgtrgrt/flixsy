@@ -1,159 +1,97 @@
 import { LiveTVChannel, LiveTVCategory } from '@/types/liveTV';
 
-const IPTV_API_BASE = 'https://iptv-org.github.io/api';
+const PLAYLIST_URL = 'https://iptv-org.github.io/iptv/index.m3u';
 
-const getAllChannels = async (): Promise<LiveTVChannel[]> => {
-  try {
-    console.log('Fetching channels from API...');
-    const response = await fetch(`${IPTV_API_BASE}/channels.json`);
+export const liveTVService = {
+  getAllChannels,
+  getChannelsByCategory,
+  getFallbackChannels,
+  getStreamUrl,
+};
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+async function fetchPlaylist(url: string): Promise<string> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${url}`);
+  return res.text();
+}
 
-    const data = await response.json();
-    console.log('Raw API response:', {
-      dataType: typeof data,
-      isArray: Array.isArray(data),
-      length: data?.length || 'unknown',
-      firstItem: data?.[0] || 'no first item'
-    });
-
-    if (!Array.isArray(data)) {
-      console.error('API response is not an array:', data);
-      return getFallbackChannels();
-    }
-
-    const channels: LiveTVChannel[] = data
-      .filter((channel: any) =>
-        channel &&
-        typeof channel === 'object' &&
-        typeof channel.name === 'string' &&
-        typeof channel.url === 'string' &&
-        channel.url.trim() !== ''
-      )
-      .slice(0, 100)
-      .map((channel: any, index: number) => {
-        const formattedChannel: LiveTVChannel = {
-          id: channel.id || `channel-${index}`,
-          name: channel.name || 'Unknown Channel',
-          logo: channel.logo || '/placeholder.svg',
-          category: channel.category || 'General',
-          country: channel.country || 'Unknown',
-          language: channel.language || 'Unknown',
-          url: channel.url,
-          isWorking: true
-        };
-
-        if (index < 3) {
-          console.log(`Sample channel ${index}:`, formattedChannel);
-        }
-
-        return formattedChannel;
+function parseM3U(text: string): LiveTVChannel[] {
+  const lines = text.split(/\r?\n/);
+  const channels: LiveTVChannel[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.startsWith('#EXTINF:')) {
+      const info = line.substring(8);
+      const [meta, name] = info.split(',', 2);
+      const url = lines[++i]?.trim() || '';
+      // Extract logo, category from meta if available
+      const logoMatch = meta.match(/tvg-logo="([^"]+)"/);
+      const categoryMatch = meta.match(/group-title="([^"]+)"/);
+      channels.push({
+        id: `ch-${channels.length}`,
+        name: name || 'Unknown',
+        logo: logoMatch?.[1] || '/placeholder.svg',
+        category: categoryMatch?.[1] || 'General',
+        country: 'Unknown',
+        language: 'Unknown',
+        url,
+        isWorking: url.endsWith('.m3u8'),
       });
+    }
+  }
+  return channels.slice(0, 100);
+}
 
-    console.log(`Successfully processed ${channels.length} channels`);
+async function getAllChannels(): Promise<LiveTVChannel[]> {
+  try {
+    console.log('Fetching .m3u playlist...');
+    const text = await fetchPlaylist(PLAYLIST_URL);
+    const channels = parseM3U(text);
+    console.log(`Loaded ${channels.length} channels from playlist`);
     return channels;
-  } catch (error: unknown) {
-    console.error('Error fetching live TV channels:', error);
-    console.log('Falling back to hardcoded channels');
+  } catch (err: any) {
+    console.error('Error loading .m3u', err);
     return getFallbackChannels();
   }
-};
+}
 
-const getChannelsByCategory = async (): Promise<LiveTVCategory[]> => {
-  try {
-    console.log('Getting channels by category...');
-    const channels = await getAllChannels();
+export async function getChannelsByCategory(): Promise<LiveTVCategory[]> {
+  const channels = await getAllChannels();
+  const map: Record<string, LiveTVChannel[]> = {};
+  channels.forEach(c => {
+    const cat = c.category || 'General';
+    if (!map[cat]) map[cat] = [];
+    map[cat].push(c);
+  });
+  return Object.entries(map).map(([name, ch]) => ({ name, channels: ch }));
+}
 
-    if (!channels || channels.length === 0) {
-      console.log('No channels received, returning empty array');
-      return [];
-    }
-
-    const categorized: Record<string, LiveTVChannel[]> = channels.reduce((acc, channel) => {
-      const category = channel.category || 'General';
-      if (!acc[category]) acc[category] = [];
-      acc[category].push(channel);
-      return acc;
-    }, {} as Record<string, LiveTVChannel[]>);
-
-    const categories: LiveTVCategory[] = Object.entries(categorized).map(([name, channels]) => ({
-      name,
-      channels
-    }));
-
-    console.log('Categories created:', categories.map(cat => `${cat.name}: ${cat.channels.length} channels`));
-    return categories;
-  } catch (error: unknown) {
-    console.error('Error categorizing channels:', error);
-    return [];
-  }
-};
-
-const getFallbackChannels = (): LiveTVChannel[] => {
-  console.log('Using fallback channels');
+export function getFallbackChannels(): LiveTVChannel[] {
   return [
     {
-      id: '1',
+      id: 'fallback-1',
       name: 'NASA TV',
       logo: '/placeholder.svg',
       category: 'Educational',
       country: 'US',
       language: 'English',
       url: 'https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8',
-      isWorking: true
+      isWorking: true,
     },
     {
-      id: '2',
-      name: 'Weather Network',
-      logo: '/placeholder.svg',
-      category: 'Weather',
-      country: 'CA',
-      language: 'English',
-      url: 'https://weather-lh.akamaihd.net/i/twc_1@92006/master.m3u8',
-      isWorking: true
-    },
-    {
-      id: '3',
-      name: 'RT News',
-      logo: '/placeholder.svg',
-      category: 'News',
-      country: 'RU',
-      language: 'English',
-      url: 'https://rt-glb.rttv.com/live/rtnews/playlist.m3u8',
-      isWorking: true
-    },
-    {
-      id: '4',
+      id: 'fallback-2',
       name: 'Al Jazeera English',
       logo: '/placeholder.svg',
       category: 'News',
       country: 'QA',
       language: 'English',
       url: 'https://live-hls-web-aje.getaj.net/AJE/01.m3u8',
-      isWorking: true
+      isWorking: true,
     },
-    {
-      id: '5',
-      name: 'Bloomberg TV',
-      logo: '/placeholder.svg',
-      category: 'Business',
-      country: 'US',
-      language: 'English',
-      url: 'https://bloomberg.com/media-manifest/streams/phoenix-us.m3u8',
-      isWorking: true
-    }
+    // Add more as needed
   ];
-};
+}
 
-const getStreamUrl = (channel: LiveTVChannel): string => {
+export function getStreamUrl(channel: LiveTVChannel): string {
   return channel.url;
-};
-
-export const liveTVService = {
-  getAllChannels,
-  getChannelsByCategory,
-  getFallbackChannels,
-  getStreamUrl
-};
+}
